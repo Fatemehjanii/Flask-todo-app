@@ -5,7 +5,6 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
 
-
 # --- Flask Setup ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -15,7 +14,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
 migrate = Migrate(app, db)
-
 
 # --- SQLAlchemy Model ---
 class Task(db.Model):
@@ -30,15 +28,9 @@ class Task(db.Model):
 admin = Admin(app, name='MyAdmin', template_mode='bootstrap3')
 admin.add_view(ModelView(Task, db.session))
 
-"""# --- Database creation ---
-with app.app_context():
-    db.create_all()"""
-
 # --- Routes ---
-
 @app.route('/')
 def hello():
-    # مثال خواندن کوکی
     username = request.cookies.get('username', 'Guest')
     tasks = Task.query.all()
     return render_template('hello.html', tasks=tasks, username=username)
@@ -61,6 +53,7 @@ def get_done_tasks():
 
 @app.route('/api/to_do', methods=['POST'])
 def add_task():
+    username = request.cookies.get('username', 'Guest')
     data = request.get_json() if request.is_json else request.form
     task_name = data.get('task')
     done = data.get('done', False) in [True, 'true', 'on']
@@ -110,7 +103,7 @@ def set_cookie():
     resp.set_cookie('username', 'Fatemeh')
     return resp
 
-# --- AJAX Example (فرم ارسال بدون Refresh) ---
+# --- AJAX Example ---
 @app.route('/ajax_add', methods=['POST'])
 def ajax_add():
     task_name = request.form.get('task')
@@ -137,4 +130,7 @@ def handle_disconnect():
 
 # --- Run Server ---
 if __name__ == '__main__':
+    # ایجاد دیتابیس قبل از اجرای سرور
+    with app.app_context():
+        db.create_all()
     socketio.run(app, debug=True)

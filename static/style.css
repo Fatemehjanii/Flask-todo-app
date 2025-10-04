@@ -1,0 +1,15 @@
+body {
+    background: #f8f9fa;
+}
+
+#taskList li {
+    transition: background 0.2s;
+}
+
+#taskList li:hover {
+    background: #e9ecef;
+}
+
+.text-decoration-line-through {
+    opacity: 0.6;
+}
