@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+
+    <!-- نوار خوش آمد -->
+    <div class="header">
+        Welcome, {{ username }}!
+    </div>
+
+    <!-- لیست تسک‌ها -->
+    <h2>Your Tasks</h2>
+    <ul id="task-list">
+        {% for task in tasks %}
+            <li id="task-{{ task.id }}" class="{{ 'done' if task.done else 'pending' }}">
+                {{ task.task }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- فرم اضافه کردن تسک -->
+    <h3>Add New Task</h3>
+    <form id="ajax-form">
+        <input type="text" id="task-input" name="task" placeholder="Enter task..." required>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <!-- JS برای AJAX و SocketIO -->
+    <script>
+        var socket = io();
+
+        // بروزرسانی realtime
+        socket.on('update', function(data){
+            if(data.action === 'add'){
+                var li = document.createElement('li');
+                li.id = 'task-' + data.task.id;
+                li.className = data.task.done ? 'done' : 'pending';
+                li.textContent = data.task.task;
+                document.getElementById('task-list').appendChild(li);
+            }
+            else if(data.action === 'delete'){
+                var elem = document.getElementById('task-' + data.id);
+                if(elem) elem.remove();
+            }
+            else if(data.action === 'update'){
+                var elem = document.getElementById('task-' + data.task.id);
+                if(elem){
+                    elem.textContent = data.task.task;
+                    elem.className = data.task.done ? 'done' : 'pending';
+                }
+            }
+        });
+
+        // ارسال AJAX فرم
+        document.getElementById('ajax-form').onsubmit = function(e){
+            e.preventDefault();
+            var task = document.getElementById('task-input').value;
+            var formData = new FormData();
+            formData.append('task', task);
+
+            fetch('/ajax_add', {method:'POST', body: formData})
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('task-input').value = '';
+            });
+        }
+    </script>
+
+</body>
+</html>
