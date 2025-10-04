@@ -16,6 +16,12 @@ A **professional To-Do application** built with Flask, featuring **task manageme
 
 ---
 
+## 🎨 Screenshots
+
+![Main Page](./static/screenshot.png)  
+![Admin Panel](./static/admin-screenshot.png)  
+
+---
 
 ## ⚙️ Installation & Setup
 
