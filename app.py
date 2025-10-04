@@ -130,7 +130,7 @@ def handle_disconnect():
 
 # --- Run Server ---
 if __name__ == '__main__':
-    # ایجاد دیتابیس قبل از اجرای سرور
+
     with app.app_context():
         db.create_all()
     socketio.run(app, debug=True)
